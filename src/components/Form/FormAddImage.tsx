@@ -1,5 +1,5 @@
 import { Box, Button, Stack, useToast } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -7,9 +7,45 @@ import { api } from '../../services/api';
 import { FileInput } from '../Input/FileInput';
 import { TextInput } from '../Input/TextInput';
 
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+type NewImageFormData = {
+  title: string;
+  description: string;
+  image: string;
+};
+
 interface FormAddImageProps {
   closeModal: () => void;
 }
+
+// Yup validation
+const newImageFormSchema = yup.object().shape({
+  title: yup
+    .string()
+    .required('Título da imagem obrigatório')
+    .min(3, 'Mínimo 3 caracteres')
+    .max(20, 'Máximo 20'),
+  description: yup
+    .string()
+    .required('Descrição obrigatória')
+    .max(60, 'Máximo 60'),
+  /* image: yup.mixed().required('Imagem obrigatória'), */
+  image: yup
+    .mixed()
+    .test(
+      'fileSize',
+      'O arquivo tem que ser JPEG e menor que 10 MB.',
+      value => {
+        console.log(value);
+        if (!value.length) return false;
+
+        // return true if it's less than 10 MB and its JPEG
+        return value[0].size <= 10_000_000 && value[0].type === 'image/jpeg';
+      }
+    ),
+});
 
 export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const [imageUrl, setImageUrl] = useState('');
@@ -19,42 +55,82 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const formValidations = {
     image: {
       // TODO REQUIRED, LESS THAN 10 MB AND ACCEPTED FORMATS VALIDATIONS
+      required: { value: true, message: 'Imagem é obrigatória.' },
+      max: 0.001 * 1024, // 10 MB
     },
     title: {
       // TODO REQUIRED, MIN AND MAX LENGTH VALIDATIONS
+      required: { value: true, message: 'Obrigatório ter título da imagem.' },
+      minLength: 3,
+      maxLength: 20,
     },
     description: {
       // TODO REQUIRED, MAX LENGTH VALIDATIONS
+      required: { value: true, message: 'Obrigatório ter descrição.' },
+      maxLength: 60,
     },
   };
 
   const queryClient = useQueryClient();
   const mutation = useMutation(
     // TODO MUTATION API POST REQUEST,
+    async (newImage: NewImageFormData) => {
+      console.log(newImage);
+
+      const response = await api.post('/images', {
+        newImage: {
+          title: newImage.title,
+          description: newImage.description,
+          url: newImage.image[0],
+        },
+      });
+
+      return response.data.newImage;
+    },
     {
       // TODO ONSUCCESS MUTATION
+      onSuccess: () => {
+        queryClient.invalidateQueries('images');
+      },
     }
   );
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState,
-    setError,
-    trigger,
-  } = useForm();
+  const { register, handleSubmit, reset, formState, setError, trigger } =
+    useForm({ resolver: yupResolver(newImageFormSchema) });
   const { errors } = formState;
 
-  const onSubmit = async (data: Record<string, unknown>): Promise<void> => {
+  const onSubmit: SubmitHandler<NewImageFormData> = async (
+    data: Record<string, unknown>
+  ): Promise<void> => {
     try {
       // TODO SHOW ERROR TOAST IF IMAGE URL DOES NOT EXISTS
       // TODO EXECUTE ASYNC MUTATION
       // TODO SHOW SUCCESS TOAST
-    } catch {
+
+      //@ts-ignore
+      await mutation.mutateAsync(data);
+      console.log(mutation);
+
+      toast({
+        title: 'Upload concluído.',
+        description: 'Fizemos o upload da imagem para você.',
+        status: 'success',
+        isClosable: true,
+        duration: 4500,
+      });
+    } catch (err) {
       // TODO SHOW ERROR TOAST IF SUBMIT FAILED
+
+      toast({
+        title: 'Erro.',
+        description: err.message,
+        status: 'error',
+        isClosable: true,
+      });
     } finally {
       // TODO CLEAN FORM, STATES AND CLOSE MODAL
+      reset();
+      closeModal();
     }
   };
 
@@ -67,20 +143,36 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           setLocalImageUrl={setLocalImageUrl}
           setError={setError}
           trigger={trigger}
+          name="image"
+          onChange={event =>
+            new Promise((resolve, reject) => {
+              setTimeout(() => {
+                resolve();
+              }, 1000);
+            })
+          }
           // TODO SEND IMAGE ERRORS
           // TODO REGISTER IMAGE INPUT WITH VALIDATIONS
+          error={formState.errors.image}
+          {...register('image')}
         />
 
         <TextInput
           placeholder="Título da imagem..."
+          name="title"
           // TODO SEND TITLE ERRORS
           // TODO REGISTER TITLE INPUT WITH VALIDATIONS
+          error={formState.errors.title}
+          {...register('title')}
         />
 
         <TextInput
           placeholder="Descrição da imagem..."
+          name="description"
           // TODO SEND DESCRIPTION ERRORS
           // TODO REGISTER DESCRIPTION INPUT WITH VALIDATIONS
+          error={formState.errors.description}
+          {...register('description')}
         />
       </Stack>
 

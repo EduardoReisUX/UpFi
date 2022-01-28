@@ -12,20 +12,32 @@ interface Card {
 }
 
 interface CardsProps {
-  cards: Card[];
+  cards?: Card[];
 }
 
 export function CardList({ cards }: CardsProps): JSX.Element {
   // TODO MODAL USEDISCLOSURE
+  const disclosure = useDisclosure();
 
   // TODO SELECTED IMAGE URL STATE
+  const [selectedImage, setSelectedImage] = useState();
 
   // TODO FUNCTION HANDLE VIEW IMAGE
+  const handleViewImage = () => {};
 
   return (
     <>
       {/* TODO CARD GRID */}
-
+      <SimpleGrid>
+        {cards?.map((card, index) => (
+          <Card
+            data={{ ...card }}
+            viewImage={handleViewImage}
+            key={index}
+          ></Card>
+        ))}
+        {!cards && 'Nenhum card disponível'}
+      </SimpleGrid>
       {/* TODO MODALVIEWIMAGE */}
     </>
   );
