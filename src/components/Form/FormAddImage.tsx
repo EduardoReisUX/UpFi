@@ -13,7 +13,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 type NewImageFormData = {
   title: string;
   description: string;
-  image: string;
+  image: FileList;
 };
 
 interface FormAddImageProps {
@@ -26,12 +26,11 @@ const newImageFormSchema = yup.object().shape({
     .string()
     .required('Título da imagem obrigatório')
     .min(3, 'Mínimo 3 caracteres')
-    .max(20, 'Máximo 20'),
+    .max(20, 'Máximo 20 caracteres'),
   description: yup
     .string()
     .required('Descrição obrigatória')
-    .max(60, 'Máximo 60'),
-  /* image: yup.mixed().required('Imagem obrigatória'), */
+    .max(60, 'Máximo 60 caracteres'),
   image: yup
     .mixed()
     .test(
@@ -51,25 +50,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const [imageUrl, setImageUrl] = useState('');
   const [localImageUrl, setLocalImageUrl] = useState('');
   const toast = useToast();
-
-  const formValidations = {
-    image: {
-      // TODO REQUIRED, LESS THAN 10 MB AND ACCEPTED FORMATS VALIDATIONS
-      required: { value: true, message: 'Imagem é obrigatória.' },
-      max: 0.001 * 1024, // 10 MB
-    },
-    title: {
-      // TODO REQUIRED, MIN AND MAX LENGTH VALIDATIONS
-      required: { value: true, message: 'Obrigatório ter título da imagem.' },
-      minLength: 3,
-      maxLength: 20,
-    },
-    description: {
-      // TODO REQUIRED, MAX LENGTH VALIDATIONS
-      required: { value: true, message: 'Obrigatório ter descrição.' },
-      maxLength: 60,
-    },
-  };
 
   const queryClient = useQueryClient();
   const mutation = useMutation(
