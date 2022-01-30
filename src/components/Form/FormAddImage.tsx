@@ -58,21 +58,16 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
       console.log(newImage);
 
       const response = await api.post('/images', {
-        newImage: {
-          title: newImage.title,
-          description: newImage.description,
-          url: imageUrl,
-        },
+        title: newImage.title,
+        description: newImage.description,
+        url: imageUrl,
       });
 
       console.log({
-        newImage: {
-          title: newImage.title,
-          description: newImage.description,
-          url: imageUrl,
-        },
+        title: newImage.title,
+        description: newImage.description,
+        url: imageUrl,
       });
-      console.log(response.data);
 
       return response.data.newImage;
     },
