@@ -10,7 +10,7 @@ import { TextInput } from '../Input/TextInput';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-type NewImageFormData = {
+type AddImageFormData = {
   title: string;
   description: string;
   image: FileList;
@@ -54,18 +54,16 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const queryClient = useQueryClient();
   const mutation = useMutation(
     // TODO MUTATION API POST REQUEST,
-    async (newImage: NewImageFormData) => {
-      console.log(newImage);
-
+    async (addImage: AddImageFormData) => {
       const response = await api.post('/images', {
-        title: newImage.title,
-        description: newImage.description,
+        title: addImage.title,
+        description: addImage.description,
         url: imageUrl,
       });
 
       console.log({
-        title: newImage.title,
-        description: newImage.description,
+        title: addImage.title,
+        description: addImage.description,
         url: imageUrl,
       });
 
@@ -83,7 +81,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
     useForm({ resolver: yupResolver(newImageFormSchema) });
   const { errors } = formState;
 
-  const onSubmit: SubmitHandler<NewImageFormData> = async (
+  const onSubmit: SubmitHandler<AddImageFormData> = async (
     data: Record<string, unknown>
   ): Promise<void> => {
     try {
