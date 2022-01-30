@@ -61,9 +61,18 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
         newImage: {
           title: newImage.title,
           description: newImage.description,
-          url: newImage.image[0],
+          url: imageUrl,
         },
       });
+
+      console.log({
+        newImage: {
+          title: newImage.title,
+          description: newImage.description,
+          url: imageUrl,
+        },
+      });
+      console.log(response.data);
 
       return response.data.newImage;
     },
@@ -89,7 +98,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
 
       //@ts-ignore
       await mutation.mutateAsync(data);
-      console.log(mutation);
 
       toast({
         title: 'Upload concluído.',
