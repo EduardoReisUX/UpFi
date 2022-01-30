@@ -28,12 +28,16 @@ export function CardList({ cards }: CardsProps): JSX.Element {
   return (
     <>
       {/* TODO CARD GRID */}
-      <SimpleGrid>
-        {cards?.map((card, index) => (
+      <SimpleGrid
+        templateColumns={'repeat(auto-fit, minmax(293.33px, 1fr))'}
+        gridGap={10}
+        mb={10}
+      >
+        {cards?.map(card => (
           <Card
             data={{ ...card }}
             viewImage={handleViewImage}
-            key={index}
+            key={card.ts + card.url}
           ></Card>
         ))}
         {!cards && 'Nenhum card disponível'}

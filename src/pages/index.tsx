@@ -29,19 +29,20 @@ export default function Home(): JSX.Element {
     }
   );
 
-  console.log(data);
-
   const formattedData = useMemo(() => {
     // TODO FORMAT AND FLAT DATA ARRAY
     if (data === undefined) return;
 
-    const newData = data.pages[0].data.data.map(imageFromFauna => ({
-      title: imageFromFauna.title,
-      description: imageFromFauna.description,
-      url: imageFromFauna.url,
-      ts: imageFromFauna.ts,
-      id: imageFromFauna.id,
+    const newData: [] = data.pages[0].data.data.map(dataFromFauna => ({
+      title: dataFromFauna.title,
+      description: dataFromFauna.description,
+      url: dataFromFauna.url,
+      ts: dataFromFauna.ts,
+      id: dataFromFauna.id,
     }));
+
+    // sort newData from newest to oldest upload
+    newData.sort((a, b) => b.ts - a.ts);
 
     return newData;
   }, [data]);
