@@ -24,26 +24,28 @@ interface FormAddImageProps {
 const newImageFormSchema = yup.object().shape({
   title: yup
     .string()
-    .required('Título da imagem obrigatório')
-    .min(3, 'Mínimo 3 caracteres')
-    .max(20, 'Máximo 20 caracteres'),
+    .required('Título obrigatório')
+    .min(2, 'Mínimo de 2 caracteres')
+    .max(20, 'Máximo de 20 caracteres'),
   description: yup
     .string()
     .required('Descrição obrigatória')
-    .max(60, 'Máximo 60 caracteres'),
+    .max(65, 'Máximo de 65 caracteres'),
   image: yup
     .mixed()
-    .test(
-      'fileSize',
-      'O arquivo tem que ser JPEG e menor que 10 MB.',
-      value => {
-        console.log(value);
-        if (!value.length) return false;
+    .required('Arquivo obrigatório')
+    .test('size', 'O arquivo deve ser menor que 10MB', value => {
+      if (!value.length) return false;
 
-        // return true if it's less than 10 MB and its JPEG
-        return value[0].size <= 10_000_000 && value[0].type === 'image/jpeg';
-      }
-    ),
+      return value[0].size <= 10_000_000;
+    })
+    .test('type', 'Somente são aceitos arquivos PNG, JPEG e GIF', value => {
+      if (!value.length) return false;
+
+      const reg = /image\/(jpeg|png|gif)/g;
+      const result = reg.test(value[0].type);
+      return result;
+    }),
 });
 
 export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
@@ -54,16 +56,10 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   const queryClient = useQueryClient();
   const mutation = useMutation(
     // TODO MUTATION API POST REQUEST,
-    async (addImage: AddImageFormData) => {
+    async (addImageForm: AddImageFormData) => {
       const response = await api.post('/images', {
-        title: addImage.title,
-        description: addImage.description,
-        url: imageUrl,
-      });
-
-      console.log({
-        title: addImage.title,
-        description: addImage.description,
+        title: addImageForm.title,
+        description: addImageForm.description,
         url: imageUrl,
       });
 
@@ -86,25 +82,32 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
   ): Promise<void> => {
     try {
       // TODO SHOW ERROR TOAST IF IMAGE URL DOES NOT EXISTS
-      // TODO EXECUTE ASYNC MUTATION
-      // TODO SHOW SUCCESS TOAST
+      if (!imageUrl) {
+        toast({
+          title: 'Imagem não adicionada',
+          description:
+            'É preciso adicionar e aguardar o upload de uma imagem antes de realizar o cadastro.',
+          status: 'error',
+          isClosable: true,
+        });
+      }
 
+      // TODO EXECUTE ASYNC MUTATION
       //@ts-ignore
       await mutation.mutateAsync(data);
 
+      // TODO SHOW SUCCESS TOAST
       toast({
         title: 'Upload concluído.',
         description: 'Fizemos o upload da imagem para você.',
         status: 'success',
         isClosable: true,
-        duration: 4500,
       });
     } catch (err) {
       // TODO SHOW ERROR TOAST IF SUBMIT FAILED
-
       toast({
-        title: 'Erro.',
-        description: err.message,
+        title: 'Falha no cadastro',
+        description: 'Ocorreu um erro ao tentar cadastrar a sua imagem.',
         status: 'error',
         isClosable: true,
       });
@@ -112,6 +115,8 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
       // TODO CLEAN FORM, STATES AND CLOSE MODAL
       reset();
       closeModal();
+      setImageUrl('');
+      setLocalImageUrl('');
     }
   };
 
@@ -134,7 +139,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           }
           // TODO SEND IMAGE ERRORS
           // TODO REGISTER IMAGE INPUT WITH VALIDATIONS
-          error={formState.errors.image}
+          error={errors.image}
           {...register('image')}
         />
 
@@ -143,7 +148,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           name="title"
           // TODO SEND TITLE ERRORS
           // TODO REGISTER TITLE INPUT WITH VALIDATIONS
-          error={formState.errors.title}
+          error={errors.title}
           {...register('title')}
         />
 
@@ -152,7 +157,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
           name="description"
           // TODO SEND DESCRIPTION ERRORS
           // TODO REGISTER DESCRIPTION INPUT WITH VALIDATIONS
-          error={formState.errors.description}
+          error={errors.description}
           {...register('description')}
         />
       </Stack>
