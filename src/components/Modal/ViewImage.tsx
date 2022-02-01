@@ -22,14 +22,14 @@ export function ModalViewImage({
   // TODO MODAL WITH IMAGE AND EXTERNAL LINK
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent maxH={'90%'} bgColor={'pGray.800'}>
-        <ModalBody p={0} maxH={'100%'}>
-          <Image src={imgUrl} alt="Imagem" w={'100%'} h={'100%'} />
+      <ModalContent bgColor={'pGray.800'}>
+        <ModalBody p={0}>
+          <Image src={imgUrl} alt={`Imagem ${imgUrl}`} w={'100%'} h={'100%'} />
         </ModalBody>
-        <ModalFooter m={2} p={0} h={'32px'} justifyContent={'start'}>
-          <Link href={imgUrl} isExternal>
+        <ModalFooter m={2} p={0} h={'2rem'}>
+          <Link href={imgUrl} isExternal fontSize={'1rem'} mr={'auto'}>
             Abrir original
           </Link>
         </ModalFooter>

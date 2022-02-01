@@ -12,17 +12,13 @@ interface Card {
 }
 
 interface CardsProps {
-  cards?: Card[];
+  cards: Card[];
 }
 
 export function CardList({ cards }: CardsProps): JSX.Element {
-  // TODO MODAL USEDISCLOSURE
   const { isOpen, onClose, onOpen } = useDisclosure();
-
-  // TODO SELECTED IMAGE URL STATE
   const [selectedImage, setSelectedImage] = useState('');
 
-  // TODO FUNCTION HANDLE VIEW IMAGE
   const handleViewImage = (url: string) => {
     setSelectedImage(url);
     onOpen();
@@ -30,27 +26,20 @@ export function CardList({ cards }: CardsProps): JSX.Element {
 
   return (
     <>
-      {/* TODO CARD GRID */}
       <SimpleGrid
         templateColumns={'repeat(auto-fit, minmax(293.33px, 1fr))'}
         gridGap={10}
         mb={10}
       >
-        {cards?.map(card => (
-          <Card
-            data={{ ...card }}
-            viewImage={handleViewImage}
-            key={card.ts + card.url}
-          ></Card>
+        {cards.map(card => (
+          <Card data={card} viewImage={handleViewImage} key={card.id}></Card>
         ))}
-        {!cards && 'Nenhum card disponível'}
       </SimpleGrid>
 
-      {/* TODO MODALVIEWIMAGE */}
       <ModalViewImage
         isOpen={isOpen}
-        onClose={onClose}
         imgUrl={selectedImage}
+        onClose={onClose}
       />
     </>
   );

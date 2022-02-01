@@ -55,7 +55,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
 
   const queryClient = useQueryClient();
   const mutation = useMutation(
-    // TODO MUTATION API POST REQUEST,
     async (addImageForm: AddImageFormData) => {
       const response = await api.post('/images', {
         title: addImageForm.title,
@@ -66,7 +65,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
       return response.data.newImage;
     },
     {
-      // TODO ONSUCCESS MUTATION
       onSuccess: () => {
         queryClient.invalidateQueries('images');
       },
@@ -81,7 +79,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
     data: Record<string, unknown>
   ): Promise<void> => {
     try {
-      // TODO SHOW ERROR TOAST IF IMAGE URL DOES NOT EXISTS
       if (!imageUrl) {
         toast({
           title: 'Imagem não adicionada',
@@ -92,19 +89,16 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
         });
       }
 
-      // TODO EXECUTE ASYNC MUTATION
       //@ts-ignore
       await mutation.mutateAsync(data);
 
-      // TODO SHOW SUCCESS TOAST
       toast({
-        title: 'Upload concluído.',
-        description: 'Fizemos o upload da imagem para você.',
+        title: 'Imagem cadastrada.',
+        description: 'Sua imagem foi cadastrada com sucesso.',
         status: 'success',
         isClosable: true,
       });
     } catch (err) {
-      // TODO SHOW ERROR TOAST IF SUBMIT FAILED
       toast({
         title: 'Falha no cadastro',
         description: 'Ocorreu um erro ao tentar cadastrar a sua imagem.',
@@ -112,7 +106,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
         isClosable: true,
       });
     } finally {
-      // TODO CLEAN FORM, STATES AND CLOSE MODAL
       reset();
       closeModal();
       setImageUrl('');
@@ -137,8 +130,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
               }, 1000);
             })
           }
-          // TODO SEND IMAGE ERRORS
-          // TODO REGISTER IMAGE INPUT WITH VALIDATIONS
           error={errors.image}
           {...register('image')}
         />
@@ -146,8 +137,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
         <TextInput
           placeholder="Título da imagem..."
           name="title"
-          // TODO SEND TITLE ERRORS
-          // TODO REGISTER TITLE INPUT WITH VALIDATIONS
           error={errors.title}
           {...register('title')}
         />
@@ -155,8 +144,6 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
         <TextInput
           placeholder="Descrição da imagem..."
           name="description"
-          // TODO SEND DESCRIPTION ERRORS
-          // TODO REGISTER DESCRIPTION INPUT WITH VALIDATIONS
           error={errors.description}
           {...register('description')}
         />
