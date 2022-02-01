@@ -8,8 +8,8 @@ import { api } from '../services/api';
 import { Loading } from '../components/Loading';
 import { Error } from '../components/Error';
 
-const fetchImages = ({ pageParam = 1 }) =>
-  api.get(`/images?after=${pageParam}`);
+const fetchImages = ({ pageParam = null }) =>
+  !!pageParam ? api.get(`/images?after=${pageParam}`) : api.get('/images');
 
 export default function Home(): JSX.Element {
   const {
@@ -25,50 +25,59 @@ export default function Home(): JSX.Element {
     fetchImages,
     // TODO GET AND RETURN NEXT PAGE PARAM
     {
-      staleTime: 1000,
+      getNextPageParam: lastPage => lastPage.data?.after,
     }
   );
 
   const formattedData = useMemo(() => {
     // TODO FORMAT AND FLAT DATA ARRAY
-    if (data === undefined) return;
+    if (!data) return;
 
-    const newData: [] = data.pages[0].data.data.map(dataFromFauna => ({
-      title: dataFromFauna.title,
-      description: dataFromFauna.description,
-      url: dataFromFauna.url,
-      ts: dataFromFauna.ts,
-      id: dataFromFauna.id,
-    }));
+    const dataFromPages = data.pages.map(page => {
+      return page.data.data.map(image => ({
+        title: image.title,
+        description: image.description,
+        url: image.url,
+        ts: image.ts,
+        id: image.id,
+      }));
+    });
 
-    // sort newData from newest to oldest upload
-    newData.sort((a, b) => b.ts - a.ts);
+    const dataFromAllPages = dataFromPages.reduce((prevPage, currentPage) => [
+      ...prevPage,
+      ...currentPage,
+    ]);
 
-    return newData;
+    const index: number = data.pages.length - 1;
+    const after: number = data.pages[index]?.data.after || null;
+
+    return {
+      after,
+      dataFromAllPages,
+    };
   }, [data]);
 
-  return (
+  return isLoading ? (
+    <Loading />
+  ) : isError ? (
+    <Error />
+  ) : (
     <>
       <Header />
       <Box maxW={1120} px={20} mx="auto" my={20}>
-        {
-          // TODO RENDER LOADING SCREEN
-          // TODO RENDER ERROR SCREEN
-          isLoading ? (
-            <Loading />
-          ) : isError ? (
-            <Error />
-          ) : (
-            <CardList cards={formattedData} />
-          )
-        }
+        <CardList cards={formattedData.dataFromAllPages} />
 
         {/* TODO RENDER LOAD MORE BUTTON IF DATA HAS NEXT PAGE */}
-        {hasNextPage && (
-          <Button disabled={isFetchingNextPage} onClick={() => fetchNextPage()}>
-            Carregar mais
-          </Button>
-        )}
+        <Button
+          disabled={!hasNextPage || isFetchingNextPage}
+          onClick={() => fetchNextPage({ pageParam: formattedData.after })}
+        >
+          {isFetchingNextPage
+            ? 'Carregando...'
+            : hasNextPage
+            ? 'Carregar mais'
+            : 'Nada mais para carregar'}
+        </Button>
       </Box>
     </>
   );
