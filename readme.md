@@ -70,7 +70,7 @@ $ cp .env.example .env
 $ yarn test
 
 # Rode a aplicação
-$ yarn start
+$ yarn dev
 
 # Acesse http://localhost:3000
 ```
