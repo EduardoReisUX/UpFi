@@ -8,7 +8,12 @@ export function Loading(): JSX.Element {
       h="100vh"
       flexDir="column"
     >
-      <Box>
+      <Box
+        display={'flex'}
+        flexDir={'column'}
+        justifyContent={'center'}
+        alignItems={'center'}
+      >
         <Heading>Carregando aplicação...</Heading>
         <Progress
           mt={4}

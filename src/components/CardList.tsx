@@ -27,9 +27,15 @@ export function CardList({ cards }: CardsProps): JSX.Element {
   return (
     <>
       <SimpleGrid
-        templateColumns={'repeat(auto-fit, minmax(293.33px, 1fr))'}
-        gridGap={10}
-        mb={10}
+        templateColumns={[
+          'repeat(1, 1fr)',
+          null,
+          'repeat(2, 1fr)',
+          null,
+          'repeat(3, 1fr)',
+        ]}
+        gridGap={[4, 10]}
+        mb={[4, 10]}
       >
         {cards.map(card => (
           <Card data={card} viewImage={handleViewImage} key={card.id}></Card>

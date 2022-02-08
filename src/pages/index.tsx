@@ -60,7 +60,7 @@ export default function Home(): JSX.Element {
     <>
       <Header />
 
-      <Box maxW={1120} px={20} mx="auto" my={20}>
+      <Box maxW={1120} px={[4, 20]} mx="auto" my={[8, 20]}>
         <CardList cards={formattedData} />
         {hasNextPage && (
           <Button
